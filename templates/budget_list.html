@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}Budget Tracker - Todo App{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="text-white"><i class="fas fa-dollar-sign"></i> Budget Tracker</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'budget_create' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> New Entry
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="btn-group w-100" role="group">
+            <a href="?view=day" class="btn btn-{% if view_type == 'day' %}primary{% else %}outline-primary{% endif %}">
+                <i class="fas fa-calendar-day"></i> Day
+            </a>
+            <a href="?view=week" class="btn btn-{% if view_type == 'week' %}primary{% else %}outline-primary{% endif %}">
+                <i class="fas fa-calendar-week"></i> Week
+            </a>
+            <a href="?view=month" class="btn btn-{% if view_type == 'month' %}primary{% else %}outline-primary{% endif %}">
+                <i class="fas fa-calendar-alt"></i> Month
+            </a>
+            <a href="?view=year" class="btn btn-{% if view_type == 'year' %}primary{% else %}outline-primary{% endif %}">
+                <i class="fas fa-calendar"></i> Year
+            </a>
+            <a href="?view=all" class="btn btn-{% if view_type == 'all' %}primary{% else %}outline-primary{% endif %}">
+                <i class="fas fa-list"></i> All
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-chart-pie"></i> Summary - {{ period }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h3 class="text-success"><i class="fas fa-arrow-up"></i> ₹{{ total_income }}</h3>
+                        <p class="text-muted">Total Income</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-danger"><i class="fas fa-arrow-down"></i> ₹{{ total_expense }}</h3>
+                        <p class="text-muted">Total Expense</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="{% if balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            <i class="fas fa-wallet"></i> ₹{{ balance }}
+                        </h3>
+                        <p class="text-muted">Balance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if category_data %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-chart-bar"></i> Category Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th class="text-success">Income</th>
+                            <th class="text-danger">Expense</th>
+                            <th>Net</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category, data in category_data.items %}
+                        <tr>
+                            <td><strong>{{ category|title }}</strong></td>
+                            <td class="text-success">₹{{ data.income }}</td>
+                            <td class="text-danger">₹{{ data.expense }}</td>
+                            <td class="{% if data.income >= data.expense %}text-success{% else %}text-danger{% endif %}">
+                                ₹{{ data.income|add:"-"|add:data.expense }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header bg-success text-white">
+        <h5><i class="fas fa-list"></i> Budget Entries</h5>
+    </div>
+    <div class="card-body">
+        {% if budgets %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for budget in budgets %}
+                    <tr>
+                        <td>{{ budget.date|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="badge bg-{% if budget.type == 'income' %}success{% else %}danger{% endif %}">
+                                {{ budget.get_type_display }}
+                            </span>
+                        </td>
+                        <td>{{ budget.get_category_display }}</td>
+                        <td class="{% if budget.type == 'income' %}text-success{% else %}text-danger{% endif %}">
+                            <strong>₹{{ budget.amount }}</strong>
+                        </td>
+                        <td>{{ budget.description|truncatewords:10 }}</td>
+                        <td>
+                            <a href="{% url 'budget_update' budget.pk %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'budget_delete' budget.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <h4>No budget entries found</h4>
+            <p class="text-muted">Start tracking your income and expenses!</p>
+            <a href="{% url 'budget_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create Entry
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

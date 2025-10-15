@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+
+{% block title %}Calculator - Todo App{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calculator {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .calculator-display {
+        background: #333;
+        color: white;
+        padding: 20px;
+        font-size: 2rem;
+        text-align: right;
+        border-radius: 10px 10px 0 0;
+        min-height: 80px;
+        word-wrap: break-word;
+    }
+    
+    .calculator-buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        padding: 20px;
+        background: white;
+        border-radius: 0 0 10px 10px;
+    }
+    
+    .calc-btn {
+        padding: 20px;
+        font-size: 1.5rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .calc-btn:hover {
+        transform: scale(1.05);
+    }
+    
+    .calc-btn.number {
+        background: #f0f0f0;
+        color: #333;
+    }
+    
+    .calc-btn.operator {
+        background: #ff9500;
+        color: white;
+    }
+    
+    .calc-btn.equals {
+        background: #4CAF50;
+        color: white;
+        grid-column: span 2;
+    }
+    
+    .calc-btn.clear {
+        background: #f44336;
+        color: white;
+    }
+    
+    .calc-btn.zero {
+        grid-column: span 2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="text-white text-center mb-4">
+            <i class="fas fa-calculator"></i> Calculator
+        </h1>
+    </div>
+</div>
+
+<div class="calculator">
+    <div class="card shadow-lg">
+        <div class="calculator-display" id="display">
+            {% if result %}{{ result }}{% else %}0{% endif %}
+        </div>
+        <div class="calculator-buttons">
+            <button class="calc-btn clear" onclick="clearDisplay()">C</button>
+            <button class="calc-btn operator" onclick="appendToDisplay('/')">/</button>
+            <button class="calc-btn operator" onclick="appendToDisplay('*')">×</button>
+            <button class="calc-btn operator" onclick="deleteLast()">⌫</button>
+            
+            <button class="calc-btn number" onclick="appendToDisplay('7')">7</button>
+            <button class="calc-btn number" onclick="appendToDisplay('8')">8</button>
+            <button class="calc-btn number" onclick="appendToDisplay('9')">9</button>
+            <button class="calc-btn operator" onclick="appendToDisplay('-')">-</button>
+            
+            <button class="calc-btn number" onclick="appendToDisplay('4')">4</button>
+            <button class="calc-btn number" onclick="appendToDisplay('5')">5</button>
+            <button class="calc-btn number" onclick="appendToDisplay('6')">6</button>
+            <button class="calc-btn operator" onclick="appendToDisplay('+')">+</button>
+            
+            <button class="calc-btn number" onclick="appendToDisplay('1')">1</button>
+            <button class="calc-btn number" onclick="appendToDisplay('2')">2</button>
+            <button class="calc-btn number" onclick="appendToDisplay('3')">3</button>
+            <button class="calc-btn operator" onclick="appendToDisplay('.')">.</button>
+            
+            <button class="calc-btn number zero" onclick="appendToDisplay('0')">0</button>
+            <button class="calc-btn equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+    
+    <form method="post" id="calcForm" style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" name="expression" id="expression">
+    </form>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-info-circle"></i> How to Use</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Click number buttons to enter digits</li>
+                    <li>Click operator buttons (+, -, ×, /) for operations</li>
+                    <li>Click = to calculate result</li>
+                    <li>Click C to clear the display</li>
+                    <li>Click ⌫ to delete last character</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentExpression = '{% if result and result != "Error" %}{{ result }}{% else %}0{% endif %}';
+
+function updateDisplay() {
+    document.getElementById('display').textContent = currentExpression || '0';
+}
+
+function appendToDisplay(value) {
+    if (currentExpression === '0' || currentExpression === 'Error') {
+        currentExpression = value;
+    } else {
+        currentExpression += value;
+    }
+    updateDisplay();
+}
+
+function clearDisplay() {
+    currentExpression = '0';
+    updateDisplay();
+}
+
+function deleteLast() {
+    if (currentExpression.length > 1) {
+        currentExpression = currentExpression.slice(0, -1);
+    } else {
+        currentExpression = '0';
+    }
+    updateDisplay();
+}
+
+function calculate() {
+    try {
+        // Replace × with * for evaluation
+        let expr = currentExpression.replace(/×/g, '*');
+        
+        // Submit form to server for safe evaluation
+        document.getElementById('expression').value = expr;
+        document.getElementById('calcForm').submit();
+    } catch (error) {
+        currentExpression = 'Error';
+        updateDisplay();
+    }
+}
+
+// Keyboard support
+document.addEventListener('keydown', function(event) {
+    if (event.key >= '0' && event.key <= '9') {
+        appendToDisplay(event.key);
+    } else if (event.key === '+' || event.key === '-' || event.key === '*' || event.key === '/') {
+        appendToDisplay(event.key === '*' ? '×' : event.key);
+    } else if (event.key === 'Enter' || event.key === '=') {
+        calculate();
+    } else if (event.key === 'Escape' || event.key === 'c' || event.key === 'C') {
+        clearDisplay();
+    } else if (event.key === 'Backspace') {
+        deleteLast();
+    } else if (event.key === '.') {
+        appendToDisplay('.');
+    }
+});
+</script>
+{% endblock %}

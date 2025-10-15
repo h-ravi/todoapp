@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Todo App{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="text-white text-center mb-4">
+            <i class="fas fa-home"></i> Welcome, {{ user.username }}!
+        </h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <h3><i class="fas fa-tasks"></i> {{ total_todos }}</h3>
+            <p>Total Todos</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <h3 class="text-success"><i class="fas fa-check-circle"></i> {{ completed_todos }}</h3>
+            <p>Completed</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <h3 class="text-warning"><i class="fas fa-clock"></i> {{ pending_todos }}</h3>
+            <p>Pending</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <h3 class="{% if balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+                <i class="fas fa-wallet"></i> ₹{{ balance }}
+            </h3>
+            <p>Balance (This Month)</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-list"></i> Recent Todos</h5>
+            </div>
+            <div class="card-body">
+                {% if todos %}
+                <ul class="list-group list-group-flush">
+                    {% for todo in todos %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>
+                            {% if todo.status == 'completed' %}
+                            <i class="fas fa-check-circle text-success"></i>
+                            {% elif todo.status == 'in_progress' %}
+                            <i class="fas fa-spinner text-warning"></i>
+                            {% else %}
+                            <i class="fas fa-circle text-secondary"></i>
+                            {% endif %}
+                            {{ todo.title }}
+                        </span>
+                        <span class="badge bg-{{ todo.priority }}">{{ todo.get_priority_display }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'todo_list' %}" class="btn btn-primary btn-sm mt-3">View All Todos</a>
+                {% else %}
+                <p class="text-muted">No todos yet. <a href="{% url 'todo_create' %}">Create one</a>!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-dollar-sign"></i> Budget Summary (This Month)</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="fas fa-arrow-up text-success"></i> Income:</span>
+                        <strong class="text-success">₹{{ total_income }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="fas fa-arrow-down text-danger"></i> Expense:</span>
+                        <strong class="text-danger">₹{{ total_expense }}</strong>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-wallet"></i> Balance:</span>
+                        <strong class="{% if balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            ₹{{ balance }}
+                        </strong>
+                    </div>
+                </div>
+                <a href="{% url 'budget_list' %}" class="btn btn-success btn-sm">View Budget Details</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-calendar fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Calendar</h5>
+                <p class="card-text">View Indian holidays and national days</p>
+                <a href="{% url 'calendar' %}" class="btn btn-primary">Open Calendar</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-calculator fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Calculator</h5>
+                <p class="card-text">Perform quick calculations</p>
+                <a href="{% url 'calculator' %}" class="btn btn-success">Open Calculator</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-chart-line fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Budget Tracker</h5>
+                <p class="card-text">Track your income and expenses</p>
+                <a href="{% url 'budget_list' %}" class="btn btn-warning">Manage Budget</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

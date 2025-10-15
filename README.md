@@ -324,10 +324,11 @@ Before you begin, ensure you have the following installed:
 
 ```bash
 # Using Git
-git clone https://github.com/yourusername/django-todo-app.git
-cd django-todo-app
-
-# Or download and extract ZIP file
+git clone https://github.com/h-ravi/todoapp.git
+```
+```bash
+# Or download and extract ZIP file and go directory
+cd todoapp
 ```
 
 ### Step 2: Create Virtual Environment
@@ -351,8 +352,8 @@ pip install -r requirements.txt
 ```
 
 **Required Packages:**
-- Django==5.2.7
-- Pillow==10.4.0 (for image handling)
+- Django>=5.2.7
+- Pillow>=10.4.0 (for image handling)
 
 ### Step 4: Database Setup
 
@@ -1368,7 +1369,7 @@ You are free to:
 
 ### Project Links
 
-- 📦 **Repository**: GitHub repository URL
+- 📦 **Repository**: https://github.com/h-ravi/todoapp.git
 - 🐛 **Issue Tracker**: Report bugs
 - 📖 **Documentation**: See .md files in project root
 

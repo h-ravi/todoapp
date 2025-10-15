@@ -1447,8 +1447,4 @@ If you need help:
 
 ### ⭐ If you found this project helpful, please consider giving it a star! ⭐
 
-Made with ❤️ and Django
-
-**Happy Todo Managing! 🎯**
-
 </div>
